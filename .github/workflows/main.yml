@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - deploy
+      - main
 
   push:
     branches:
@@ -26,7 +27,7 @@ jobs:
           npm run test-component
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
