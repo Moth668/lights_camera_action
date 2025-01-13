@@ -4,12 +4,19 @@ name: Deploy
 # Trigger workflow on all pull requests
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - deploy
+
+  push:
+    branches:
+      - main
 
 # Jobs to carry out
 jobs:
   ci:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -18,12 +25,15 @@ jobs:
           npm install
           npm run test-component
 
-      - name: Deploy
-        if: github.ref == 'refs/heads/main'
+  deploy:
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy
         env:
-          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: |
-          curl "$DEPLOY_URL"
+        DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      run: |
+        curl "$DEPLOY_URL"
 
 # I have already stored the Render Hook as a repository secret in GitHub Actions.
 # GitHub Actions will automatically detect workflows in this .github/workflows directory.
