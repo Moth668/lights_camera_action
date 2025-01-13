@@ -7,6 +7,8 @@ on:
     branches:
       - deploy
       - main
+    types: 
+      - closed
 
   push:
     branches:
@@ -27,14 +29,18 @@ jobs:
           npm run test-component
 
   deploy:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+        if: github.event.pull_request.merged == true
+        runs-on: ubuntu-latest
+
     steps:
+      - uses: actions/checkout@v2
+
       - name: Deploy
         env:
           DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl "$DEPLOY_URL"
+          echo "Deployed to Render"
 
 # I have already stored the Render Hook as a repository secret in GitHub Actions.
 # GitHub Actions will automatically detect workflows in this .github/workflows directory.
